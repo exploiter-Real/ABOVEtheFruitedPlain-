@@ -1,176 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Admin Panel</title>
-
-<style>
-body{
-margin:0;
-padding:30px;
-font-family:Arial,sans-serif;
-background:#111;
-color:#fff;
-}
-
-.wrap{
-max-width:800px;
-margin:auto;
-background:#1b1b1b;
-padding:25px;
-border-radius:14px;
-}
-
-input,button{
-width:100%;
-padding:12px;
-margin:8px 0;
-font-size:16px;
-border:none;
-border-radius:8px;
-box-sizing:border-box;
-}
-
-button{
-background:#2ecc71;
-color:#fff;
-font-weight:bold;
-cursor:pointer;
-}
-
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-margin-top:15px;
-}
-
-.hidden{
-display:none;
-}
-
-.section{
-margin-top:25px;
-padding-top:15px;
-border-top:1px solid #333;
-}
-
-#status{
-margin-top:10px;
-color:#aaa;
-}
-</style>
+    <meta charset="UTF-8">
+    <title>KERNEL_V33 ADMIN</title>
+    <style>
+        body { background: #050505; color: #00f0ff; font-family: 'Orbitron', sans-serif; padding: 50px; }
+        .panel { border: 2px solid #00f0ff; padding: 30px; max-width: 500px; margin: auto; border-radius: 15px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; background: #111; border: 1px solid #333; color: #fff; }
+        button { width: 100%; padding: 15px; background: #00f0ff; color: #000; border: none; font-weight: bold; cursor: pointer; margin: 5px 0; }
+        .hidden { display: none; }
+        #status { text-align: center; font-size: 0.8rem; margin-top: 10px; color: #ff00c8; }
+    </style>
 </head>
 <body>
+    <div class="panel">
+        <div id="loginBox">
+            <h2>ADMIN_AUTH</h2>
+            <input id="username" type="password" placeholder="Passkey">
+            <button onclick="auth()">LOGIN</button>
+        </div>
+        <div id="controls" class="hidden">
+            <h2>LIVE_OVERRIDE</h2>
+            <button onclick="setEffect('rainbow')">RAINBOW_MODE</button>
+            <button onclick="setEffect('shake')">SHAKE_UI</button>
+            <button onclick="setEffect('none')">RESET_SYSTEM</button>
+            <button onclick="location.href='index.html'" style="background:#333; color:#fff">EXIT</button>
+        </div>
+        <div id="status">WIDGETS_OFFLINE</div>
+    </div>
 
-<div class="wrap">
+    <script>
+        const SB_URL = "https://dleydypvpffeifmdpzqc.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsZXlkeXB2cGZmZWlmbWRwenFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTc5ODUsImV4cCI6MjA5MjA5Mzk4NX0.gnI03TZkpBT7r5OIwlTKsd7bwovQYAfwRfykhnq5fjY";
 
-<h1>Admin Panel</h1>
+        function auth() {
+            if(document.getElementById("username").value === "EliteTrio") {
+                document.getElementById("loginBox").classList.add("hidden");
+                document.getElementById("controls").classList.remove("hidden");
+                document.getElementById("status").innerText = "AUTH_SUCCESS";
+            }
+        }
 
-<div id="loginBox">
-
-<input id="username" placeholder="Username">
-
-<button id="loginBtn" type="button">Login</button>
-
-<div id="status">Waiting...</div>
-
-</div>
-
-<div id="panel" class="hidden">
-
-<h2>Owner Controls</h2>
-
-<div class="section">
-<h3>Live Effects</h3>
-
-<div class="grid">
-<button onclick="setEffect('rainbow')">Rainbow</button>
-<button onclick="setEffect('dark')">Dark</button>
-<button onclick="setEffect('shake')">Shake</button>
-<button onclick="setEffect('none')">Reset</button>
-</div>
-
-</div>
-
-<div class="section">
-<button onclick="location.href='index.html'">
-Back To Site
-</button>
-</div>
-
-</div>
-
-</div>
-
-<script>
-window.onload = function(){
-
-const btn =
-document.getElementById("loginBtn");
-
-const statusEl =
-document.getElementById("status");
-
-const loginBox =
-document.getElementById("loginBox");
-
-const panel =
-document.getElementById("panel");
-
-btn.onclick = function(){
-
-const name =
-document.getElementById("username")
-.value
-.trim();
-
-if(name === "EliteTrio"){
-
-statusEl.innerText =
-"Access granted";
-
-loginBox.classList.add("hidden");
-
-panel.classList.remove("hidden");
-
-}else{
-
-statusEl.innerText =
-"Denied";
-
-}
-
-};
-
-};
-
-function setEffect(cmd){
-
-fetch(
-"https://dleydypvpffeifmdpzqc.supabase.co/rest/v1/live_effects",
-{
-method:"POST",
-headers:{
-"apikey":"sb_publishable_8Y8H1WhpJhp3A4kyF6P6hQ_JvQk5IVU",
-"Authorization":"Bearer sb_publishable_8Y8H1WhpJhp3A4kyF6P6hQ_JvQk5IVU",
-"Content-Type":"application/json",
-"Prefer":"return=minimal"
-},
-body:JSON.stringify([
-{
-command:cmd,
-active:true
-}
-])
-}
-).then(() => {
-alert("Effect sent: " + cmd);
-});
-
-}
-</script>
-
+        async function setEffect(cmd) {
+            document.getElementById("status").innerText = "SYNCING_" + cmd.toUpperCase();
+            await fetch(`${SB_URL}/rest/v1/live_effects`, {
+                method: "POST",
+                headers: {
+                    "apikey": SB_KEY,
+                    "Authorization": `Bearer ${SB_KEY}`,
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                },
+                body: JSON.stringify([{ command: cmd, active: true }])
+            });
+            document.getElementById("status").innerText = "SYSTEM_UPDATED";
+        }
+    </script>
 </body>
 </html>
