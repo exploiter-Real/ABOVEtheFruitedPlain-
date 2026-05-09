@@ -3,137 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="EliteTrio Arcade — free browser games, live lobby chat, instant play with no downloads.">
-    <meta name="theme-color" content="#03050f">
-    <title>EliteTrio Arcade</title>
-    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
-  
-
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <title>ELITETRIO ARCADE</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-
-    <!-- Load order: Supabase CDN → Backup.js (defines runBackup/buildCard) → script.js -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="Backup.js"></script>
 </head>
 <body>
-
-    <!-- ── HEADER ── -->
     <header>
-        <div class="logo-glow">ELITETRIO ARCADE</div>
-        <p class="tagline">Premium Web Gaming</p>
-
-        <!-- Status row: pill + retry button -->
+        <h1 class="logo-glow">ELITETRIO</h1>
+        <p class="tagline">SINGULARITY ENGINE V33</p>
         <div class="status-row">
             <div id="statusPill">
-                <span class="dot" id="statusDot"></span>
-                <span id="statusText">Connecting to database...</span>
+                <span id="statusDot" class="dot"></span>
+                <span id="statusText">Waking system...</span>
             </div>
-            <!--
-                Retry button — hidden by default.
-                showRetryButton() in script.js reveals it when backup mode fires.
-            -->
-            <button id="retryBtn" onclick="retryConnection()">
-                &#x21BB; RETRY LIVE
-            </button>
+            <button id="retryBtn" onclick="window.retryConnection()">RETRY</button>
         </div>
     </header>
 
-    <!-- ── GAME PLAYER ── -->
     <section id="playerSection">
         <div class="player-header">
-            <h2 id="playerTitle">Now Playing</h2>
-            <button class="close-btn" onclick="closePlayer()">&#x2715; CLOSE GAME</button>
+            <h2 id="playerTitle">NOW PLAYING</h2>
+            <button class="close-btn" onclick="window.closePlayer()">CLOSE</button>
         </div>
         <div class="iframe-container">
-            <iframe id="gameFrame" src="" allowfullscreen title="Game player"></iframe>
+            <iframe id="gameFrame" src="" allowfullscreen></iframe>
         </div>
     </section>
 
-    <!-- ── CATEGORY FILTERS ── -->
-    <div id="filterBar" role="toolbar" aria-label="Filter games by category"></div>
+    <div id="filterBar"></div>
 
-    <!-- ── RECENTLY PLAYED ── -->
-    <div id="recentBar" aria-label="Recently played games">
-        <span class="recent-label">&#9658; RECENTLY PLAYED</span>
+    <div id="recentBar">
+        <span class="recent-label">RECENT:</span>
         <div id="recentChips"></div>
     </div>
 
-    <!-- ── SEARCH ── -->
     <div id="searchWrap">
         <div class="search-inner">
-            <span class="search-icon" aria-hidden="true">&#9906;</span>
-            <input
-                type="search"
-                id="gameSearch"
-                placeholder="Search games..."
-                maxlength="60"
-                autocomplete="off"
-                spellcheck="false"
-                aria-label="Search games"
-            >
+            <span class="search-icon">🔍</span>
+            <input type="text" id="gameSearch" placeholder="Search logic streams...">
         </div>
     </div>
 
-    <!-- ── GAME GRID ── -->
-    <main id="gameGrid" aria-label="Game library">
-        <p class="loading-msg">CONNECTING TO DATABASE...</p>
+    <main id="gameGrid">
+        <p class="loading-msg">INITIALIZING DATABASE...</p>
     </main>
 
-    <!-- ── LOBBY CHAT ── -->
-    <section id="chatSection" aria-label="Lobby chat">
+    <section id="chatSection">
         <div class="chat-panel">
-
             <div class="chat-header">
-                <span class="chat-title">&#9670; LOBBY CHAT</span>
+                <span class="chat-title">LOBBY_CHAT</span>
                 <div class="chat-header-right">
-                    <span id="onlineCount" aria-live="polite"></span>
-                    <span class="chat-live-badge">
-                        <span class="dot" style="width:6px;height:6px;" aria-hidden="true"></span>
-                        LIVE
-                    </span>
+                    <div id="onlineCount">0 online</div>
+                    <div class="chat-live-badge">● LIVE</div>
                 </div>
             </div>
-
             <div class="chat-feed-wrap">
-                <div id="chatMessages" role="log" aria-live="polite" aria-label="Chat messages"></div>
-                <button id="chatNewMsg" onclick="jumpToLatest()">&#8595; new message</button>
+                <div id="chatMessages"></div>
             </div>
-
             <div class="chat-input-area">
                 <div class="chat-username-row">
-                    <label class="chat-username-label" for="chatUsername">Name:</label>
-                    <input
-                        type="text"
-                        id="chatUsername"
-                        placeholder="YourName"
-                        maxlength="24"
-                        spellcheck="false"
-                        autocomplete="off"
-                    >
+                    <span class="chat-username-label">USER:</span>
+                    <input type="text" id="chatUsername" placeholder="Guest" maxlength="15">
                 </div>
                 <div class="chat-send-row">
-                    <input
-                        type="text"
-                        id="chatInput"
-                        placeholder="Say something..."
-                        maxlength="280"
-                        autocomplete="off"
-                        spellcheck="false"
-                        onkeydown="chatKeyHandler(event)"
-                        aria-label="Chat message"
-                    >
-                    <button id="chatSendBtn" onclick="sendMessage()">SEND</button>
+                    <input type="text" id="chatInput" placeholder="Send message..." onkeydown="window.chatKeyHandler(event)">
+                    <button id="chatSendBtn" onclick="window.sendMessage()">SEND</button>
                 </div>
             </div>
-
         </div>
     </section>
 
-    <footer>ELITETRIO ARCADE &nbsp;&bull;&nbsp; ALL GAMES STREAMED VIA SECURE CDN</footer>
+    <footer>&copy; 2026 ELITETRIO ARCADE // KERNEL_V33</footer>
 
+    <script src="Backup.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
