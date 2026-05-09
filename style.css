@@ -1,515 +1,111 @@
 /* =============================================================
-   ELITETRIO ARCADE — style.css
-   Fonts: Orbitron (400,700,900) + Rajdhani (300,400,600)
+   ELITETRIO ARCADE — style.css (Patched)
    ============================================================= */
 
-/* ─── TOKENS ─── */
 :root {
-    --neon:    #00f0ff;
-    --neon2:   #ff00c8;
-    --bg:      #03050f;
-    --panel:   #080d1f;
+    --neon: #00f0ff;
+    --neon2: #ff00c8;
+    --bg: #03050f;
+    --panel: #080d1f;
     --card-bg: #0b1128;
-    --border:  rgba(0, 240, 255, 0.22);
-    --text:    #c8deff;
-    --muted:   #3a5070;
+    --border: rgba(0, 240, 255, 0.22);
+    --text: #c8deff;
+    --muted: #3a5070;
 }
 
-/* ─── RESET ─── */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-/* ─── BASE ─── */
+html { height: -webkit-fill-available; }
 body {
     background: var(--bg);
     color: var(--text);
     font-family: 'Rajdhani', sans-serif;
     min-height: 100vh;
+    min-height: -webkit-fill-available;
     overflow-x: hidden;
-    padding-bottom: 60px;
+    margin: 0;
 }
 
-/* Scanline overlay */
-body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background: repeating-linear-gradient(
-        0deg, transparent, transparent 2px,
-        rgba(0,240,255,0.012) 2px, rgba(0,240,255,0.012) 4px
-    );
-    pointer-events: none; z-index: 0;
-}
-
-/* ─── ANIMATIONS ─── */
-@keyframes blink   { 0%,100%{opacity:1} 50%{opacity:0.3} }
-@keyframes fadeUp  { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-@keyframes slideIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
-@keyframes pillPop { from{opacity:0;transform:translateX(-50%) translateY(6px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
-
-/* ─── FOCUS & TOUCH ─── */
-:focus         { outline: none; }
-:focus-visible { outline: 2px solid var(--neon); outline-offset: 3px; border-radius: 3px; }
-button, input  { touch-action: manipulation; }
-
-/* ─── HEADER ─── */
 header {
-    position: relative; z-index: 10;
     text-align: center;
-    padding: 40px 20px 28px;
+    padding: 40px 20px;
     background: linear-gradient(180deg, rgba(0,240,255,0.07) 0%, transparent 100%);
     border-bottom: 1px solid var(--border);
 }
 
 .logo-glow {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Orbitron', sans-serif;
     font-size: clamp(1.8rem, 5vw, 3rem);
-    font-weight: 900; letter-spacing: 0.18em;
-    background: linear-gradient(90deg, var(--neon) 0%, #fff 50%, var(--neon2) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text; display: inline-block;
+    background: linear-gradient(90deg, var(--neon), #fff, var(--neon2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.18em;
 }
 
-.tagline {
-    font-size: 0.82rem; letter-spacing: 0.4em;
-    color: var(--muted); margin-top: 8px; text-transform: uppercase;
-}
-
-/* ── Status row — pill + retry button side by side ── */
-.status-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 16px;
-}
+.status-row { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
 
 #statusPill {
-    display: inline-flex; align-items: center; gap: 8px;
     background: rgba(0,240,255,0.06);
-    border: 1px solid var(--border); border-radius: 20px;
-    padding: 5px 16px; font-size: 0.78rem;
-    letter-spacing: 0.1em; color: var(--text);
-}
-
-/* ── Retry button ──────────────────────────────────────────
- * Hidden by default (display:none set inline in HTML).
- * showRetryButton() in script.js changes it to inline-flex.
- * ────────────────────────────────────────────────────────── */
-#retryBtn {
-    display: none; /* shown by JS */
-    align-items: center;
-    gap: 6px;
-    background: rgba(255, 200, 0, 0.1);
-    border: 1px solid rgba(255, 200, 0, 0.35);
-    color: #ffd700;
-    font-family: 'Orbitron', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    padding: 6px 16px;
+    border: 1px solid var(--border);
+    padding: 5px 15px;
     border-radius: 20px;
-    cursor: pointer;
-    transition: background 0.2s, box-shadow 0.2s;
-}
-#retryBtn:hover {
-    background: rgba(255, 200, 0, 0.22);
-    box-shadow: 0 0 14px rgba(255, 200, 0, 0.2);
+    font-size: 0.8rem;
 }
 
 .dot {
-    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-    background: var(--neon); box-shadow: 0 0 8px var(--neon);
-    animation: blink 2s ease-in-out infinite;
-}
-.dot.red  { background: var(--neon2); box-shadow: 0 0 8px var(--neon2); animation: none; }
-.dot.gold { background: #ffd700;      box-shadow: 0 0 8px #ffd700;      animation: none; }
-
-/* ─── GAME PLAYER ─── */
-#playerSection {
-    display: none; position: relative; z-index: 10;
-    background: #000; border-bottom: 1px solid var(--border); padding: 20px;
+    display: inline-block; width: 8px; height: 8px;
+    background: var(--neon); border-radius: 50%;
+    margin-right: 5px; box-shadow: 0 0 8px var(--neon);
 }
 
-.player-header {
-    display: flex; justify-content: space-between; align-items: center;
-    max-width: 960px; margin: 0 auto 14px; flex-wrap: wrap; gap: 10px;
-}
+.dot.gold { background: #ffd700; box-shadow: 0 0 8px #ffd700; }
 
-#playerTitle {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.95rem; color: var(--neon); letter-spacing: 0.1em;
-}
-
-.close-btn {
-    background: rgba(255,0,80,0.12); border: 1px solid rgba(255,0,80,0.35);
-    color: #ff3060; font-family: 'Orbitron', monospace;
-    font-size: 0.68rem; letter-spacing: 0.15em;
-    padding: 8px 22px; border-radius: 4px; cursor: pointer;
-    transition: background 0.2s, box-shadow 0.2s;
-}
-.close-btn:hover { background: rgba(255,0,80,0.28); box-shadow: 0 0 14px rgba(255,0,80,0.25); }
-
-.iframe-container {
-    position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;
-    max-width: 960px; margin: 0 auto;
-    border: 1px solid var(--border); border-radius: 8px;
-    box-shadow: 0 0 40px rgba(0,240,255,0.08);
-}
-.iframe-container iframe {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    border: none; border-radius: 8px;
-}
-
-/* ─── FILTER BAR ─── */
-#filterBar {
-    display: none; position: relative; z-index: 10;
-    justify-content: center; flex-wrap: wrap;
-    gap: 8px; padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-}
-#filterBar.visible { display: flex; }
-
-.filter-btn {
-    background: transparent; border: 1px solid var(--muted); color: var(--muted);
-    font-family: 'Rajdhani', sans-serif; font-size: 0.82rem; letter-spacing: 0.14em;
-    padding: 6px 16px; border-radius: 3px; cursor: pointer;
-    transition: border-color 0.2s, color 0.2s, background 0.2s, box-shadow 0.2s;
-    text-transform: uppercase;
-}
-.filter-btn:hover  { border-color: var(--neon); color: var(--neon); }
-.filter-btn.active {
-    background: rgba(0,240,255,0.1); border-color: var(--neon);
-    color: var(--neon); box-shadow: 0 0 10px rgba(0,240,255,0.15);
-}
-
-/* ─── RECENTLY PLAYED ─── */
-#recentBar {
-    display: none; /* shown by renderRecentlyPlayed() */
-    align-items: center; gap: 12px;
-    padding: 10px 20px;
-    border-bottom: 1px solid var(--border);
-    overflow-x: auto;
-    position: relative; z-index: 10;
-    scrollbar-width: none;
-}
-#recentBar::-webkit-scrollbar { display: none; }
-
-.recent-label {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.62rem; letter-spacing: 0.18em;
-    color: var(--muted); white-space: nowrap; flex-shrink: 0;
-}
-
-#recentChips { display: flex; gap: 8px; flex-shrink: 0; }
-
-.recent-chip {
-    background: rgba(0,240,255,0.05);
-    border: 1px solid rgba(0,240,255,0.2); color: var(--text);
-    font-family: 'Rajdhani', sans-serif; font-size: 0.82rem; letter-spacing: 0.06em;
-    padding: 5px 14px; border-radius: 20px; cursor: pointer;
-    white-space: nowrap; max-width: 180px;
-    overflow: hidden; text-overflow: ellipsis;
-    transition: background 0.2s, border-color 0.2s, color 0.2s;
-}
-.recent-chip:hover { background: rgba(0,240,255,0.12); border-color: var(--neon); color: var(--neon); }
-
-/* ─── SEARCH ─── */
-#searchWrap {
-    display: none; /* shown by attachSearchListener() */
-    position: relative; z-index: 10;
-    padding: 16px 20px 8px;
-    max-width: 600px; margin: 0 auto;
-}
-
-.search-inner {
-    display: flex; align-items: center; gap: 10px;
-    background: rgba(0,240,255,0.04);
-    border: 1px solid var(--muted); border-radius: 6px;
-    padding: 0 14px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-.search-inner:focus-within {
-    border-color: var(--neon);
-    box-shadow: 0 0 14px rgba(0,240,255,0.1);
-}
-
-.search-icon { color: var(--muted); font-size: 1rem; flex-shrink: 0; line-height: 1; }
-
-#gameSearch {
-    flex: 1; background: transparent; border: none;
-    color: var(--text); font-family: 'Rajdhani', sans-serif;
-    font-size: 1rem; letter-spacing: 0.06em; padding: 10px 0; outline: none;
-}
-#gameSearch::placeholder { color: var(--muted); }
-#gameSearch::-webkit-search-cancel-button { display: none; }
-
-/* ─── GAME GRID ─── */
 #gameGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-    gap: 20px;
-    padding: 20px 20px 28px;
-    max-width: 1280px; margin: 0 auto;
-    position: relative; z-index: 10;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px; padding: 30px;
+    max-width: 1200px; margin: auto;
 }
 
-.loading-msg {
-    grid-column: 1 / -1; text-align: center;
-    font-family: 'Orbitron', monospace;
-    font-size: 0.9rem; color: var(--neon); letter-spacing: 0.2em;
-    margin-top: 60px;
-    animation: blink 1.4s ease-in-out infinite;
-}
-
-/* ─── CARDS ─── */
 .card {
     background: var(--card-bg);
-    border-radius: 10px; border: 1px solid var(--border);
-    overflow: hidden; will-change: transform;
-    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-    animation: fadeUp 0.4s ease both;
-}
-.card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 0 24px rgba(0,240,255,0.18), 0 8px 30px rgba(0,0,0,0.5);
-    border-color: rgba(0,240,255,0.5);
+    border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+    transition: transform 0.2s;
 }
 
-.card-thumb {
-    width: 100%; height: 150px;
-    object-fit: cover; display: block; background: #0a1028;
-}
+.card:hover { transform: translateY(-5px); border-color: var(--neon); }
 
 .card-thumb-placeholder {
-    width: 100%; height: 150px;
-    background: linear-gradient(135deg, #0a1028 0%, #0f1a3a 100%);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 2.5rem;
+    height: 140px; background: #000;
+    display: flex; align-items: center; justify-content: center; font-size: 3rem;
 }
 
-.card-body { padding: 16px; }
-
-.card-category {
-    display: inline-block;
-    font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--neon2);
-    border: 1px solid rgba(255,0,200,0.3); background: rgba(255,0,200,0.07);
-    padding: 2px 9px; border-radius: 3px; margin-bottom: 10px;
-}
-
-.card-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.88rem; font-weight: 700;
-    color: #fff; letter-spacing: 0.05em;
-    margin-bottom: 14px; line-height: 1.4;
-}
+.card-body { padding: 15px; }
 
 .play-btn {
-    width: 100%; padding: 11px;
-    background: linear-gradient(90deg, rgba(0,240,255,0.15), rgba(0,240,255,0.08));
-    border: 1px solid rgba(0,240,255,0.35);
-    color: var(--neon); font-family: 'Orbitron', monospace;
-    font-size: 0.72rem; letter-spacing: 0.2em;
-    border-radius: 5px; cursor: pointer;
-    transition: background 0.2s, box-shadow 0.2s;
-}
-.play-btn:hover {
-    background: linear-gradient(90deg, rgba(0,240,255,0.28), rgba(0,240,255,0.15));
-    box-shadow: 0 0 16px rgba(0,240,255,0.2);
+    width: 100%; padding: 10px; background: var(--panel);
+    border: 1px solid var(--neon); color: var(--neon);
+    font-family: 'Orbitron', sans-serif; cursor: pointer;
 }
 
-.mode-tag {
-    font-size: 0.68rem; color: var(--muted);
-    letter-spacing: 0.1em; margin-bottom: 10px;
+#playerSection { display: none; padding: 20px; background: #000; }
+
+.iframe-container {
+    position: relative; padding-bottom: 56.25%; height: 0;
+    width: 100%; max-width: 960px; margin: auto;
 }
 
-/* ═══════════════════════════════════════════════
-   LOBBY CHAT
-═══════════════════════════════════════════════ */
-#chatSection {
-    display: none;
-    position: relative; z-index: 10;
-    max-width: 760px; margin: 0 auto 40px; padding: 0 20px;
-}
+.iframe-container iframe { position: absolute; top:0; left:0; width:100%; height:100%; border:0; }
 
-.chat-panel {
-    background: var(--card-bg);
-    border: 1px solid var(--border); border-radius: 12px;
-    overflow: hidden; box-shadow: 0 0 40px rgba(0,240,255,0.06);
-}
+#chatSection { max-width: 600px; margin: 40px auto; padding: 20px; }
 
-.chat-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 18px;
-    background: linear-gradient(90deg, rgba(0,240,255,0.07) 0%, transparent 100%);
-    border-bottom: 1px solid var(--border);
-}
+.chat-panel { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; }
 
-.chat-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.78rem; letter-spacing: 0.2em; color: var(--neon);
-}
+#chatMessages { height: 250px; overflow-y: auto; padding: 15px; font-size: 0.9rem; }
 
-.chat-header-right { display: flex; align-items: center; gap: 14px; }
+.chat-username { color: var(--neon); font-weight: bold; margin-right: 5px; }
 
-#onlineCount {
-    display: none; /* shown by updateOnlineCount() */
-    align-items: center; gap: 6px;
-    font-family: 'Orbitron', monospace;
-    font-size: 0.62rem; letter-spacing: 0.14em; color: var(--neon);
-    background: rgba(0,240,255,0.07);
-    border: 1px solid rgba(0,240,255,0.2);
-    border-radius: 20px; padding: 3px 10px;
-}
+.chat-input-area { padding: 15px; border-top: 1px solid var(--border); }
 
-.chat-live-badge {
-    display: flex; align-items: center;
-    gap: 6px; font-size: 0.7rem;
-    letter-spacing: 0.12em; color: var(--muted);
-}
-
-.chat-feed-wrap { position: relative; }
-
-#chatMessages {
-    height: 280px; overflow-y: auto;
-    padding: 14px 18px;
-    display: flex; flex-direction: column; gap: 8px;
-    scrollbar-width: thin; scrollbar-color: var(--muted) transparent;
-}
-#chatMessages::-webkit-scrollbar       { width: 4px; }
-#chatMessages::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 2px; }
-
-#chatNewMsg {
-    display: none;
-    position: absolute; bottom: 10px; left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,240,255,0.14); border: 1px solid rgba(0,240,255,0.45);
-    color: var(--neon); font-family: 'Orbitron', monospace;
-    font-size: 0.65rem; letter-spacing: 0.16em;
-    padding: 6px 16px; border-radius: 20px; cursor: pointer;
-    white-space: nowrap; box-shadow: 0 0 16px rgba(0,240,255,0.2);
-    transition: background 0.15s, box-shadow 0.15s; z-index: 20;
-}
-#chatNewMsg.visible { display: block; animation: pillPop 0.2s ease both; }
-#chatNewMsg:hover   { background: rgba(0,240,255,0.26); box-shadow: 0 0 22px rgba(0,240,255,0.3); }
-
-.chat-row {
-    display: flex; align-items: baseline;
-    gap: 8px; font-size: 0.88rem; line-height: 1.5; flex-wrap: wrap;
-}
-.chat-row-new { animation: slideIn 0.25s ease both; }
-
-.chat-time { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.05em; flex-shrink: 0; }
-
-.chat-username {
-    font-family: 'Orbitron', monospace; font-size: 0.72rem;
-    letter-spacing: 0.08em; color: var(--neon); flex-shrink: 0;
-}
-.chat-username.admin { color: var(--neon2); text-shadow: 0 0 8px rgba(255,0,200,0.5); }
-
-.chat-admin-badge {
-    display: inline-block; font-size: 0.58rem; letter-spacing: 0.12em;
-    background: rgba(255,0,200,0.15); border: 1px solid rgba(255,0,200,0.35);
-    color: var(--neon2); padding: 1px 5px; border-radius: 3px;
-    margin-left: 5px; vertical-align: middle;
-}
-
-.chat-msg-text { color: var(--text); word-break: break-word; }
-
-.chat-system-msg {
-    font-size: 0.82rem; color: var(--muted);
-    letter-spacing: 0.08em; padding: 20px 0; text-align: center;
-}
-
-.chat-input-area {
-    padding: 12px 18px; border-top: 1px solid var(--border);
-    background: rgba(0,0,0,0.2);
-}
-
-.chat-username-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-
-.chat-username-label {
-    font-size: 0.7rem; letter-spacing: 0.12em;
-    color: var(--muted); text-transform: uppercase; flex-shrink: 0;
-}
-
-#chatUsername {
-    background: transparent; border: none;
-    border-bottom: 1px solid var(--muted);
-    color: var(--neon); font-family: 'Orbitron', monospace;
-    font-size: 0.75rem; letter-spacing: 0.08em;
-    padding: 3px 6px; width: 160px; outline: none;
-    transition: border-color 0.2s;
-}
-#chatUsername:focus { border-bottom-color: var(--neon); }
-
-.chat-send-row { display: flex; gap: 8px; }
-
-#chatInput {
-    flex: 1; background: rgba(0,240,255,0.04);
-    border: 1px solid var(--muted); border-radius: 5px;
-    color: var(--text); font-family: 'Rajdhani', sans-serif;
-    font-size: 0.92rem; padding: 9px 14px; outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-#chatInput:focus        { border-color: var(--neon); box-shadow: 0 0 10px rgba(0,240,255,0.1); }
-#chatInput::placeholder { color: var(--muted); }
-#chatInput:disabled     { opacity: 0.35; cursor: not-allowed; }
-
-#chatSendBtn {
-    background: linear-gradient(135deg, rgba(0,240,255,0.18), rgba(0,240,255,0.08));
-    border: 1px solid rgba(0,240,255,0.4); color: var(--neon);
-    font-family: 'Orbitron', monospace; font-size: 0.68rem;
-    letter-spacing: 0.15em; padding: 9px 20px;
-    border-radius: 5px; cursor: pointer; flex-shrink: 0;
-    transition: background 0.2s, box-shadow 0.2s;
-}
-#chatSendBtn:hover    { background: rgba(0,240,255,0.28); box-shadow: 0 0 14px rgba(0,240,255,0.2); }
-#chatSendBtn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-/* ─── FOOTER ─── */
-footer {
-    position: relative; z-index: 10; text-align: center;
-    padding: 20px; border-top: 1px solid var(--border);
-    font-size: 0.75rem; color: var(--muted); letter-spacing: 0.1em;
-}
-
-/* ═══════════════════════════════════════════════
-   RESPONSIVE
-═══════════════════════════════════════════════ */
-@media (max-width: 600px) {
-    #gameGrid    { padding: 16px 16px 24px; gap: 16px; }
-    .filter-btn  { font-size: 0.75rem; padding: 5px 12px; }
-    #chatSection { padding: 0 12px; margin-bottom: 30px; }
-    #searchWrap  { padding: 12px 12px 6px; }
-    #recentBar   { padding: 8px 12px; gap: 8px; }
-}
-
-@media (max-width: 480px) {
-    header           { padding: 26px 16px 20px; }
-    .logo-glow       { letter-spacing: 0.1em; }
-    .tagline         { letter-spacing: 0.22em; font-size: 0.75rem; }
-    #playerSection   { padding: 14px; }
-    #chatMessages    { height: 220px; }
-    .chat-input-area { padding: 10px 14px; }
-    .chat-username-row { flex-wrap: wrap; }
-    #chatUsername    { width: 100%; flex: 1; }
-    .chat-send-row   { gap: 6px; }
-    #chatSendBtn     { padding: 9px 14px; font-size: 0.62rem; letter-spacing: 0.1em; }
-    footer           { padding: 14px; font-size: 0.7rem; }
-    #onlineCount     { font-size: 0.58rem; padding: 3px 8px; }
-    .status-row      { gap: 8px; }
-    #retryBtn        { font-size: 0.6rem; padding: 5px 12px; }
-}
-
-/* ═══════════════════════════════════════════════
-   ACCESSIBILITY — REDUCED MOTION
-═══════════════════════════════════════════════ */
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-    .dot        { animation: none; }
-    .card:hover { transform: none; }
+#chatInput, #chatUsername {
+    background: #000; border: 1px solid var(--muted); color: #fff; padding: 8px;
 }
