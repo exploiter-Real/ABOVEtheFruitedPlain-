@@ -1,5 +1,6 @@
 /* =============================================================
-   ELITETRIO ARCADE — script.js (Patched)
+   ELITETRIO ARCADE — script.js
+   Core Engine with 10s CDN Wait Logic
    ============================================================= */
 
 const SB_URL = "https://dleydypvpffeifmdpzqc.supabase.co";
@@ -10,93 +11,168 @@ let chatInitialized = false;
 
 async function init() {
     const grid = document.getElementById("gameGrid");
-    if (!grid) return;
-    try {
-        if (!window.supabase) throw new Error("Supabase Load Error");
-        sbClient = window.supabase.createClient(SB_URL, SB_KEY);
-        
-        const { data, error } = await sbClient.from("arcade_games").select("*").order("id");
-        if (error || !data || data.length === 0) throw new Error("DB Query Failed");
-        
-        grid.innerHTML = "";
-        data.forEach((g, i) => grid.appendChild(buildCard(g, i, false)));
-        
-        renderRecentlyPlayed();
-        attachSearchListener();
-        initChat();
-        setStatus("LIVE: " + data.length + " Games", true);
-    } catch (e) {
-        console.error("Kernel Error: ", e.message);
+    const statusText = document.getElementById("statusText");
+    const dot = document.getElementById("statusDot");
+
+    if (statusText) statusText.innerText = "Connecting to Kernel...";
+
+    // ─── 10 SECOND CDN WAIT LOOP ───
+    let attempts = 0;
+    const maxAttempts = 10; 
+
+    while (!window.supabase && attempts < maxAttempts) {
+        console.log(`Waiting for Supabase... Attempt ${attempts + 1}/${maxAttempts}`);
+        await new Promise(res => setTimeout(res, 1000)); // Wait 1 second
+        attempts++;
+    }
+
+    // ─── CONNECTION LOGIC ───
+    if (window.supabase) {
+        try {
+            sbClient = window.supabase.createClient(SB_URL, SB_KEY);
+            
+            // Fetch Games
+            const { data, error } = await sbClient
+                .from("arcade_games")
+                .select("*")
+                .order("id", { ascending: true });
+
+            if (error) throw error;
+
+            if (data && data.length > 0) {
+                grid.innerHTML = "";
+                data.forEach((game, i) => {
+                    // buildCard is defined in Backup.js
+                    grid.appendChild(buildCard(game, i, false));
+                });
+
+                if (statusText) statusText.innerText = "LIVE — " + data.length + " Games";
+                if (dot) dot.className = "dot"; // Remove gold/red status
+
+                initChat();
+                listenForEffects();
+            } else {
+                throw new Error("No data returned");
+            }
+
+        } catch (err) {
+            console.error("Supabase Connection Error:", err.message);
+            enterBackupMode();
+        }
+    } else {
+        console.error("Supabase CDN failed to load after 10 seconds.");
         enterBackupMode();
     }
 }
 
-window.playGame = function(url, title) {
-    const frame = document.getElementById("gameFrame");
-    const sec = document.getElementById("playerSection");
-    if (!frame || !sec) return;
-    
-    const secureUrl = url.replace(/^http:\/\//i, 'https://');
-    frame.src = secureUrl;
-    sec.style.display = "block";
-    sec.scrollIntoView({ behavior: "smooth" });
-    
-    addToRecent({ url: secureUrl, title });
-};
+/* ─── LIVE EFFECTS SUBSCRIPTION ─── */
+function listenForEffects() {
+    if (!sbClient) return;
 
+    sbClient
+        .channel('public:live_effects')
+        .on('postgres_changes', { 
+            event: 'INSERT', 
+            schema: 'public', 
+            table: 'live_effects' 
+        }, payload => {
+            const cmd = payload.new.command;
+            console.log("Remote Command Received:", cmd);
+            applyVisualEffect(cmd);
+        })
+        .subscribe();
+}
+
+function applyVisualEffect(cmd) {
+    // Removes all effect classes from body
+    document.body.classList.remove("effect-rainbow", "effect-shake", "effect-dark");
+    
+    if (cmd !== "none") {
+        document.body.classList.add("effect-" + cmd);
+    }
+}
+
+/* ─── CHAT LOGIC ─── */
 async function initChat() {
     if (chatInitialized || !sbClient) return;
     chatInitialized = true;
-    
-    document.getElementById("chatSection").style.display = "block";
-    const { data } = await sbClient.from("chat_messages").select("*").limit(50).order("created_at");
-    data?.forEach(m => appendMessage(m));
-    
-    sbClient.channel("lobby").on("postgres_changes", { 
-        event: "INSERT", 
-        schema: "public", 
-        table: "chat_messages" 
-    }, p => appendMessage(p.new)).subscribe();
+
+    const chatSection = document.getElementById("chatSection");
+    if (chatSection) chatSection.style.display = "block";
+
+    // Load last 50 messages
+    const { data } = await sbClient
+        .from("chat_messages")
+        .select("*")
+        .limit(50)
+        .order("created_at", { ascending: true });
+
+    if (data) data.forEach(msg => appendMessage(msg));
+
+    // Realtime listener for new messages
+    sbClient
+        .channel('public:chat_messages')
+        .on('postgres_changes', { 
+            event: 'INSERT', 
+            schema: 'public', 
+            table: 'chat_messages' 
+        }, payload => {
+            appendMessage(payload.new);
+        })
+        .subscribe();
 }
 
 function appendMessage(msg) {
     const feed = document.getElementById("chatMessages");
     if (!feed) return;
+
     const row = document.createElement("div");
     row.className = "chat-row";
-    const safeUser = msg.username.replace(/</g, "&lt;");
-    const safeMsg = msg.message.replace(/</g, "&lt;");
-    row.innerHTML = `<span class="chat-username">${safeUser}:</span> <span class="chat-msg-text">${safeMsg}</span>`;
+    
+    // Simple sanitization
+    const user = String(msg.username || "Guest").replace(/</g, "&lt;");
+    const text = String(msg.message || "").replace(/</g, "&lt;");
+
+    row.innerHTML = `<span class="chat-username">${user}:</span> <span class="chat-msg-text">${text}</span>`;
     feed.appendChild(row);
     feed.scrollTop = feed.scrollHeight;
 }
 
 window.sendMessage = async () => {
-    const user = document.getElementById("chatUsername").value || "Guest";
-    const msg = document.getElementById("chatInput").value;
-    if (!msg || !sbClient) return;
+    const userInput = document.getElementById("chatUsername");
+    const msgInput = document.getElementById("chatInput");
     
-    await sbClient.from("chat_messages").insert([{ username: user, message: msg, channel: "lobby" }]);
-    document.getElementById("chatInput").value = "";
+    const user = userInput.value.trim() || "Guest";
+    const msg = msgInput.value.trim();
+
+    if (!msg || !sbClient) return;
+
+    await sbClient.from("chat_messages").insert([
+        { username: user, message: msg, channel: "lobby" }
+    ]);
+
+    msgInput.value = "";
 };
 
-window.chatKeyHandler = (e) => { if (e.key === "Enter") window.sendMessage(); };
+/* ─── UTILITIES ─── */
+window.playGame = function(url, title) {
+    const frame = document.getElementById("gameFrame");
+    const player = document.getElementById("playerSection");
+    const pTitle = document.getElementById("playerTitle");
 
-function setStatus(t, live) {
-    document.getElementById("statusText").textContent = t;
-    if (live) document.getElementById("statusDot").className = "dot";
-}
+    if (!frame || !player) return;
 
-function enterBackupMode() { 
-    runBackup(); 
-    document.getElementById("retryBtn").style.display = "inline-flex";
-}
-
-window.retryConnection = () => location.reload();
-window.closePlayer = () => {
-    document.getElementById("gameFrame").src = "";
-    document.getElementById("playerSection").style.display = "none";
+    frame.src = url.replace(/^http:\/\//i, 'https://');
+    if (pTitle) pTitle.innerText = title;
+    player.style.display = "block";
+    player.scrollIntoView({ behavior: "smooth" });
 };
+
+function enterBackupMode() {
+    console.warn("System entering Local Backup Mode.");
+    if (typeof runBackup === "function") {
+        runBackup();
+    }
+}
 
 window.onload = init;
-           
