@@ -108,4 +108,59 @@ header {
 
 #chatInput, #chatUsername {
     background: #000; border: 1px solid var(--muted); color: #fff; padding: 8px;
+/* Universal Button Fix - Deep Blue Orbitron Theme */
+button {
+    background: #1a1a1a; 
+    color: #ffffff;      
+    border: 1px solid #0056b3; 
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    
+    /* Font Patch */
+    font-family: 'Orbitron', sans-serif; /* Applied Orbitron */
+    font-size: 0.8rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    
+    transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+button:hover {
+    background: #002d5a; 
+    border-color: #007bff; 
+}
+
+/* Primary Action Buttons (Play & Active Filters) */
+.play-btn, 
+.filter-btn.active, 
+#chatSendBtn, 
+#loginBtn {
+    background: #004085 !important; 
+    border: 1px solid #0056b3 !important;
+    color: white !important;
+    font-weight: 700; /* Makes Orbitron pop more */
+}
+
+.play-btn:hover, 
+.filter-btn.active:hover, 
+#chatSendBtn:hover, 
+#loginBtn:hover {
+    background: #0056b3 !important; 
+    box-shadow: 0 0 12px rgba(0, 123, 255, 0.6); 
+}
+
+/* Secondary Filter Buttons (Inactive) */
+.filter-btn {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: #8b949e;
+}
+
+.filter-btn:hover {
+    color: #ffffff;
+    border-color: #0056b3;
+}
+   
+   
 }
