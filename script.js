@@ -2,43 +2,42 @@ const SB_URL = "https://dleydypvpffeifmdpzqc.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsZXlkeXB2cGZmZWlmbWRwenFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTc5ODUsImV4cCI6MjA5MjA5Mzk4NX0.gnI03TZkpBT7r5OIwlTKsd7bwovQYAfwRfykhnq5fjY";
 
 let sbClient = null;
-let isAdmin = false;
 
 async function init() {
-    console.log("Initializing Kernel...");
-    let attempts = 0;
-    while (!window.supabase && attempts < 10) {
-        await new Promise(res => setTimeout(res, 1000));
-        attempts++;
-    }
-
-    if (window.supabase) {
-        sbClient = window.supabase.createClient(SB_URL, SB_KEY);
-        
-        // Admin Validation
-        const userCheck = document.getElementById("chatUsername").value;
-        if (userCheck === "EliteTrio" || localStorage.getItem("adminMode") === "true") {
-            isAdmin = true;
-        }
-
-        loadGames();
-        initChat();
-        listenForEffects();
-        document.getElementById("statusText").innerText = "LINK ESTABLISHED";
-    }
+    if (!window.supabase) return;
+    sbClient = window.supabase.createClient(SB_URL, SB_KEY);
+    
+    document.getElementById("statusText").innerText = "LINK ESTABLISHED";
+    
+    loadGames();
+    initChat();
+    listenForEffects();
 }
 
-// --- Chat & Moderation Logic ---
 async function initChat() {
-    const { data } = await sbClient.from("chat_messages").select("*").limit(50).order("created_at", { ascending: true });
-    if (data) {
-        data.forEach(msg => appendMessage(msg));
+    const userID = document.getElementById("chatUsername").value;
+    
+    // Initial load
+    let query = sbClient.from("chat_messages").select("*");
+    
+    // Simple logic: non-admins only see general channel
+    if (userID !== "EliteTrio") {
+        query = query.eq("channel", "general");
     }
 
+    const { data } = await query.order("created_at", { ascending: true }).limit(50);
+    if (data) data.forEach(msg => appendMessage(msg));
+
+    // Realtime Listener
     sbClient.channel('chat-room').on('postgres_changes', { event: '*', schema: 'public', table: 'chat_messages' }, payload => {
-        if (payload.eventType === 'INSERT') appendMessage(payload.new);
+        if (payload.eventType === 'INSERT') {
+            // Only append if it's general OR if we are admin
+            if (payload.new.channel === "general" || document.getElementById("chatUsername").value === "EliteTrio") {
+                appendMessage(payload.new);
+            }
+        }
         if (payload.eventType === 'DELETE') {
-            const el = document.getElementById(`msg-${payload.old.id}`);
+            const el = document.getElementById(`msg-${payload.old.id || payload.old.msg_id}`);
             if (el) el.remove();
         }
     }).subscribe();
@@ -50,20 +49,19 @@ function appendMessage(msg) {
 
     const row = document.createElement("div");
     row.className = "chat-row";
-    row.id = `msg-${msg.id}`;
+    row.id = `msg-${msg.id || msg.msg_id}`;
 
-    // Admin Long-Press Setup
+    // Admin Long-Press Deletion
     let pressTimer;
     row.addEventListener('touchstart', () => {
-        if(isAdmin) pressTimer = setTimeout(() => openModMenu(msg), 800);
+        if(document.getElementById("chatUsername").value === "EliteTrio") {
+            pressTimer = setTimeout(() => deleteMessage(msg), 800);
+        }
     });
     row.addEventListener('touchend', () => clearTimeout(pressTimer));
-    row.oncontextmenu = (e) => {
-        if(isAdmin) { e.preventDefault(); openModMenu(msg); }
-    };
 
     row.innerHTML = `
-        <span class="chat-username">${msg.username || 'ANON'}</span>
+        <span class="chat-username">${msg.username}:</span>
         <span class="chat-text">${msg.message}</span>
     `;
 
@@ -71,11 +69,14 @@ function appendMessage(msg) {
     feed.scrollTop = feed.scrollHeight;
 }
 
-async function openModMenu(msg) {
-    const choice = confirm(`MODERATION - Target: ${msg.username}\n\nOK: Delete Message\nCancel: Dismiss`);
-    if (choice) {
-        const { error } = await sbClient.from("chat_messages").delete().eq("id", msg.id);
-        if (error) alert("Deletion failed: " + error.message);
+async function deleteMessage(msg) {
+    const confirmDelete = confirm("Purge this message from the stream?");
+    if (confirmDelete) {
+        // Targets 'id' or 'msg_id' depending on which one you have in DB
+        const targetId = msg.id || msg.msg_id;
+        const targetColumn = msg.id ? "id" : "msg_id";
+        
+        await sbClient.from("chat_messages").delete().eq(targetColumn, targetId);
     }
 }
 
@@ -85,16 +86,24 @@ window.sendMessage = async () => {
     const user = userBox.value || "Guest";
     const msg = msgBox.value;
 
-    if (msg.trim() !== "" && sbClient) {
-        if (user === "EliteTrio") isAdmin = true; // Local toggle
-        await sbClient.from("chat_messages").insert([{ username: user, message: msg }]);
-        msgBox.value = "";
+    if (!msg.trim()) return;
+
+    let chan = "general";
+    if (user === "EliteTrio" && msg.startsWith("/a ")) {
+        chan = "admin";
     }
+
+    await sbClient.from("chat_messages").insert([{ 
+        username: user, 
+        message: msg.replace("/a ", ""), 
+        channel: chan 
+    }]);
+    
+    msgBox.value = "";
 };
 
-// --- Games & Effects ---
 async function loadGames() {
-    const { data } = await sbClient.from("arcade_games").select("*").order("id");
+    const { data } = await sbClient.from("arcade_games").select("*");
     const grid = document.getElementById("gameGrid");
     if (data) {
         grid.innerHTML = "";
@@ -103,28 +112,23 @@ async function loadGames() {
             card.className = "card";
             card.innerHTML = `
                 <h3>${game.title}</h3>
-                <button class="play-btn" onclick="playGame('${game.url}')">INITIATE</button>
+                <button onclick="playGame('${game.url}')">INITIATE</button>
             `;
             grid.appendChild(card);
         });
     }
 }
 
-function listenForEffects() {
-    sbClient.channel('effects').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'live_effects' }, p => {
-        const cmd = p.new.command;
-        document.body.classList.remove("effect-rainbow", "effect-shake", "effect-dark");
-        if (cmd && cmd !== "none") {
-            document.body.classList.add("effect-" + cmd);
-        }
-    }).subscribe();
-}
-
-window.playGame = (url) => {
+function playGame(url) {
     const player = document.getElementById("playerSection");
     document.getElementById("gameFrame").src = url;
     player.style.display = "block";
-    player.scrollIntoView({ behavior: "smooth" });
-};
+}
+
+function listenForEffects() {
+    sbClient.channel('fx').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'live_effects' }, p => {
+        document.body.className = "effect-" + p.new.command;
+    }).subscribe();
+}
 
 window.onload = init;
