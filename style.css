@@ -1,95 +1,183 @@
-/* Core Layout */
+/* --- Root Variables for easy color swaps --- */
+:root {
+    --bg-black: #000000;
+    --panel-dark: #0a0a0a;
+    --neon-blue: #00f0ff;
+    --neon-purple: #9d00ff;
+    --text-main: #e0e0e0;
+    --border-dim: #222222;
+}
+
 body {
     margin: 0;
     padding: 0;
+    background-color: var(--bg-black);
+    color: var(--text-main);
     font-family: 'Rajdhani', sans-serif;
-    background: #121212;
-    color: #ffffff;
     overflow-x: hidden;
-    transition: background 0.5s ease;
+    transition: filter 0.5s ease, background 0.3s ease;
 }
 
-header { padding: 20px; text-align: center; border-bottom: 1px solid #333; }
-
-#gameGrid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-    gap: 20px; 
-    padding: 20px; 
+/* --- Header & Branding --- */
+header {
+    background: linear-gradient(180deg, #111 0%, #000 100%);
+    padding: 20px;
+    text-align: center;
+    border-bottom: 2px solid var(--border-dim);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
-/* Universal Orbitron Button Fix */
-button, #chatSendBtn, #retryBtn, .play-btn, .filter-btn {
-    background: #1a1a1a; 
-    color: #ffffff !important;      
-    border: 1px solid #0056b3; 
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
+header h1 {
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 4px;
+    color: var(--neon-blue);
+    text-transform: uppercase;
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+/* --- Game Grid --- */
+#gameGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 25px;
+}
+
+.card {
+    background: var(--panel-dark);
+    border: 1px solid var(--border-dim);
+    padding: 15px;
+    text-align: center;
+    transition: 0.3s;
+    position: relative;
+}
+
+.card:hover {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+.card h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 15px;
+}
+
+/* --- Futuristic Buttons --- */
+button, .play-btn, #chatSendBtn {
+    background: #111;
+    color: white !important;
+    border: 1px solid #444;
+    padding: 10px 20px;
     font-family: 'Orbitron', sans-serif !important;
     font-size: 0.75rem;
     letter-spacing: 1px;
+    cursor: pointer;
     text-transform: uppercase;
-    transition: all 0.3s ease;
+    transition: 0.2s ease;
 }
 
 button:hover {
-    background: #002d5a; 
-    border-color: #007bff; 
-    box-shadow: 0 0 10px rgba(0, 123, 255, 0.4);
+    background: #222;
+    border-color: var(--neon-blue);
+    color: var(--neon-blue) !important;
 }
 
-/* Specialized Button States */
 .play-btn {
-    background: #004085 !important;
     width: 100%;
+    border-color: var(--neon-purple);
+}
+
+.play-btn:hover {
+    background: var(--neon-purple);
+    box-shadow: 0 0 15px var(--neon-purple);
+}
+
+/* --- Chat Section --- */
+#chatSection {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+#chatMessages {
+    height: 300px;
+    background: #050505;
+    border: 1px solid var(--border-dim);
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.chat-row {
+    padding: 5px 10px;
+    border-left: 2px solid transparent;
+    cursor: pointer;
+    user-select: none; /* Prevents text selection during long-press */
+}
+
+.chat-row:hover {
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 2px solid var(--neon-blue);
+}
+
+.chat-username {
+    font-weight: bold;
+    color: var(--neon-blue);
+    margin-right: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+}
+
+.chat-input-area {
+    display: flex;
     margin-top: 10px;
+    gap: 5px;
 }
 
-.filter-btn.active {
-    background: #007bff !important;
-    border-color: #ffffff !important;
+input[type="text"] {
+    flex-grow: 1;
+    background: #111;
+    border: 1px solid #333;
+    color: white;
+    padding: 10px;
+    font-family: 'Rajdhani', sans-serif;
 }
 
-/* Live Effects Logic - Forced Overrides */
+/* --- Live Effects Logic --- */
 body.effect-rainbow {
-    animation: rainbow-bg 2s linear infinite !important;
+    animation: rainbow-bg 3s linear infinite !important;
 }
 
 body.effect-shake {
-    animation: shake-ui 0.1s linear infinite !important;
+    animation: shake-ui 0.15s linear infinite !important;
 }
 
 body.effect-dark {
-    filter: brightness(0.1) grayscale(1) !important;
+    filter: brightness(0.15) contrast(1.2) grayscale(0.5) !important;
 }
 
 @keyframes rainbow-bg {
-    0% { background: #ff0000 !important; }
-    33% { background: #00ff00 !important; }
-    66% { background: #0000ff !important; }
-    100% { background: #ff0000 !important; }
+    0% { border-top: 5px solid red; }
+    33% { border-top: 5px solid green; }
+    66% { border-top: 5px solid blue; }
+    100% { border-top: 5px solid red; }
 }
 
 @keyframes shake-ui {
-    0% { transform: translate(3px, 3px); }
-    50% { transform: translate(-3px, -3px); }
-    100% { transform: translate(3px, 3px); }
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    25% { transform: translate(-1px, -2px) rotate(-1deg); }
+    50% { transform: translate(-3px, 0px) rotate(1deg); }
+    75% { transform: translate(3px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -1px) rotate(-1deg); }
 }
 
-/* Chat Styling */
-#chatSection { padding: 20px; max-width: 800px; margin: auto; }
-#chatMessages { 
-    height: 200px; 
-    overflow-y: auto; 
-    background: #000; 
-    padding: 10px; 
-    border: 1px solid #333;
-    margin-bottom: 10px;
+/* --- Mobile Specific Optimization --- */
+@media (max-width: 600px) {
+    header h1 { font-size: 1.1rem; }
+    #gameGrid { grid-template-columns: 1fr; }
 }
-.chat-row { margin-bottom: 5px; font-size: 0.9rem; border-bottom: 1px solid #1a1a1a; padding-bottom: 2px; }
-.chat-username { color: #007bff; font-weight: bold; }
-
-/* Game Cards */
-.card { background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; }
-.card-title { margin: 10px 0; font-family: 'Orbitron', sans-serif; font-size: 1rem; }
