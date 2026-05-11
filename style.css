@@ -1,183 +1,141 @@
-/* --- Root Variables for easy color swaps --- */
+/* Core Styling */
 :root {
-    --bg-black: #000000;
-    --panel-dark: #0a0a0a;
     --neon-blue: #00f0ff;
-    --neon-purple: #9d00ff;
-    --text-main: #e0e0e0;
-    --border-dim: #222222;
+    --neon-pink: #ff0055;
+    --bg-black: #000000;
+    --panel-gray: #0a0a0a;
 }
 
 body {
     margin: 0;
-    padding: 0;
     background-color: var(--bg-black);
-    color: var(--text-main);
+    color: #ffffff;
     font-family: 'Rajdhani', sans-serif;
-    overflow-x: hidden;
-    transition: filter 0.5s ease, background 0.3s ease;
+    transition: filter 0.4s ease;
 }
 
-/* --- Header & Branding --- */
 header {
-    background: linear-gradient(180deg, #111 0%, #000 100%);
     padding: 20px;
     text-align: center;
-    border-bottom: 2px solid var(--border-dim);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    border-bottom: 1px solid #222;
+    background: linear-gradient(to bottom, #111, #000);
 }
 
 header h1 {
     font-family: 'Orbitron', sans-serif;
-    letter-spacing: 4px;
     color: var(--neon-blue);
-    text-transform: uppercase;
     margin: 0;
-    font-size: 1.5rem;
+    letter-spacing: 5px;
+    font-size: 1.4rem;
 }
 
-/* --- Game Grid --- */
+/* Grid & Cards */
 #gameGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    padding: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+    padding: 20px;
 }
 
 .card {
-    background: var(--panel-dark);
-    border: 1px solid var(--border-dim);
-    padding: 15px;
+    background: var(--panel-gray);
+    border: 1px solid #222;
+    padding: 20px;
     text-align: center;
-    transition: 0.3s;
-    position: relative;
-}
-
-.card:hover {
-    border-color: var(--neon-blue);
-    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
 }
 
 .card h3 {
     font-family: 'Orbitron', sans-serif;
-    font-size: 1rem;
+    font-size: 0.9rem;
     margin-bottom: 15px;
 }
 
-/* --- Futuristic Buttons --- */
-button, .play-btn, #chatSendBtn {
-    background: #111;
-    color: white !important;
+/* Buttons */
+button {
+    font-family: 'Orbitron', sans-serif;
+    background: #000;
+    color: #fff;
     border: 1px solid #444;
-    padding: 10px 20px;
-    font-family: 'Orbitron', sans-serif !important;
-    font-size: 0.75rem;
-    letter-spacing: 1px;
+    padding: 10px;
     cursor: pointer;
     text-transform: uppercase;
-    transition: 0.2s ease;
+    transition: 0.2s;
 }
 
 button:hover {
-    background: #222;
     border-color: var(--neon-blue);
-    color: var(--neon-blue) !important;
+    color: var(--neon-blue);
 }
 
 .play-btn {
     width: 100%;
-    border-color: var(--neon-purple);
+    border-color: var(--neon-pink);
 }
 
-.play-btn:hover {
-    background: var(--neon-purple);
-    box-shadow: 0 0 15px var(--neon-purple);
-}
-
-/* --- Chat Section --- */
+/* Chat Layout Fixes */
 #chatSection {
-    max-width: 900px;
-    margin: 20px auto;
-    padding: 0 15px;
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
 }
 
 #chatMessages {
-    height: 300px;
+    height: 250px;
     background: #050505;
-    border: 1px solid var(--border-dim);
+    border: 1px solid #1a1a1a;
     padding: 15px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    font-family: 'Rajdhani', sans-serif;
 }
 
 .chat-row {
-    padding: 5px 10px;
+    margin-bottom: 10px;
     border-left: 2px solid transparent;
-    cursor: pointer;
-    user-select: none; /* Prevents text selection during long-press */
+    padding-left: 8px;
 }
 
 .chat-row:hover {
-    background: rgba(255, 255, 255, 0.03);
-    border-left: 2px solid var(--neon-blue);
+    border-left-color: var(--neon-blue);
+    background: #080808;
 }
 
 .chat-username {
-    font-weight: bold;
-    color: var(--neon-blue);
-    margin-right: 8px;
     font-family: 'Orbitron', sans-serif;
+    color: var(--neon-blue);
+    font-weight: 700;
     font-size: 0.8rem;
+    margin-right: 10px;
+}
+
+.chat-text {
+    color: #ffffff !important; /* Forces visibility */
+    font-weight: 400;
 }
 
 .chat-input-area {
     display: flex;
-    margin-top: 10px;
     gap: 5px;
+    margin-top: 10px;
 }
 
 input[type="text"] {
-    flex-grow: 1;
     background: #111;
     border: 1px solid #333;
-    color: white;
+    color: #fff;
     padding: 10px;
     font-family: 'Rajdhani', sans-serif;
 }
 
-/* --- Live Effects Logic --- */
-body.effect-rainbow {
-    animation: rainbow-bg 3s linear infinite !important;
+/* Effects */
+body.effect-rainbow { border: 5px solid red; animation: rbw 1s infinite; }
+body.effect-shake { animation: shk 0.1s infinite; }
+body.effect-dark { filter: brightness(0.2); }
+
+@keyframes rbw {
+    0% { border-color: red; } 50% { border-color: blue; } 100% { border-color: red; }
 }
 
-body.effect-shake {
-    animation: shake-ui 0.15s linear infinite !important;
-}
-
-body.effect-dark {
-    filter: brightness(0.15) contrast(1.2) grayscale(0.5) !important;
-}
-
-@keyframes rainbow-bg {
-    0% { border-top: 5px solid red; }
-    33% { border-top: 5px solid green; }
-    66% { border-top: 5px solid blue; }
-    100% { border-top: 5px solid red; }
-}
-
-@keyframes shake-ui {
-    0% { transform: translate(1px, 1px) rotate(0deg); }
-    25% { transform: translate(-1px, -2px) rotate(-1deg); }
-    50% { transform: translate(-3px, 0px) rotate(1deg); }
-    75% { transform: translate(3px, 2px) rotate(0deg); }
-    100% { transform: translate(1px, -1px) rotate(-1deg); }
-}
-
-/* --- Mobile Specific Optimization --- */
-@media (max-width: 600px) {
-    header h1 { font-size: 1.1rem; }
-    #gameGrid { grid-template-columns: 1fr; }
+@keyframes shk {
+    0% { transform: translate(2px, 2px); } 50% { transform: translate(-2px, -2px); }
 }
