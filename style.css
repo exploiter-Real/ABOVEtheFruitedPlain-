@@ -1,4 +1,3 @@
-/* Core Styling */
 :root {
     --neon-blue: #00f0ff;
     --neon-pink: #ff0055;
@@ -11,14 +10,14 @@ body {
     background-color: var(--bg-black);
     color: #ffffff;
     font-family: 'Rajdhani', sans-serif;
-    transition: filter 0.4s ease;
+    overflow-x: hidden;
 }
 
 header {
     padding: 20px;
     text-align: center;
     border-bottom: 1px solid #222;
-    background: linear-gradient(to bottom, #111, #000);
+    background: #050505;
 }
 
 header h1 {
@@ -29,7 +28,14 @@ header h1 {
     font-size: 1.4rem;
 }
 
-/* Grid & Cards */
+#statusText {
+    font-size: 0.6rem;
+    color: #444;
+    margin-top: 5px;
+    letter-spacing: 2px;
+}
+
+/* Arcade Grid */
 #gameGrid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -39,10 +45,13 @@ header h1 {
 
 .card {
     background: var(--panel-gray);
-    border: 1px solid #222;
+    border: 1px solid #1a1a1a;
     padding: 20px;
     text-align: center;
+    transition: 0.3s;
 }
+
+.card:hover { border-color: var(--neon-blue); }
 
 .card h3 {
     font-family: 'Orbitron', sans-serif;
@@ -50,39 +59,24 @@ header h1 {
     margin-bottom: 15px;
 }
 
-/* Buttons */
-button {
-    font-family: 'Orbitron', sans-serif;
-    background: #000;
-    color: #fff;
-    border: 1px solid #444;
-    padding: 10px;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: 0.2s;
-}
-
-button:hover {
-    border-color: var(--neon-blue);
-    color: var(--neon-blue);
-}
-
-.play-btn {
-    width: 100%;
-    border-color: var(--neon-pink);
-}
-
-/* Chat Layout Fixes */
+/* Chat Layout */
 #chatSection {
     padding: 20px;
     max-width: 800px;
-    margin: auto;
+    margin: 0 auto 50px auto;
+}
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 #chatMessages {
-    height: 250px;
-    background: #050505;
-    border: 1px solid #1a1a1a;
+    height: 300px;
+    background: #020202;
+    border: 1px solid #222;
     padding: 15px;
     overflow-y: auto;
     display: flex;
@@ -90,29 +84,26 @@ button:hover {
 }
 
 .chat-row {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    word-wrap: break-word;
     border-left: 2px solid transparent;
-    padding-left: 8px;
-}
-
-.chat-row:hover {
-    border-left-color: var(--neon-blue);
-    background: #080808;
+    padding-left: 10px;
 }
 
 .chat-username {
     font-family: 'Orbitron', sans-serif;
     color: var(--neon-blue);
-    font-weight: 700;
+    font-weight: bold;
     font-size: 0.8rem;
     margin-right: 10px;
 }
 
 .chat-text {
-    color: #ffffff !important; /* Forces visibility */
-    font-weight: 400;
+    color: #ffffff !important;
+    font-size: 1rem;
 }
 
+/* Inputs & Buttons */
 .chat-input-area {
     display: flex;
     gap: 5px;
@@ -127,15 +118,31 @@ input[type="text"] {
     font-family: 'Rajdhani', sans-serif;
 }
 
+#chatUsername { width: 80px; }
+#chatInput { flex-grow: 1; }
+
+button {
+    background: #000;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 10px 15px;
+    font-family: 'Orbitron', sans-serif;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+}
+
+button:hover {
+    border-color: var(--neon-blue);
+    color: var(--neon-blue);
+}
+
+.close-btn { width: 100%; border-color: var(--neon-pink); color: var(--neon-pink) !important; margin-top: 10px; }
+
 /* Effects */
-body.effect-rainbow { border: 5px solid red; animation: rbw 1s infinite; }
-body.effect-shake { animation: shk 0.1s infinite; }
-body.effect-dark { filter: brightness(0.2); }
+body.effect-rainbow { border-top: 4px solid var(--neon-blue); animation: rainbow 2s infinite; }
+body.effect-shake { animation: shake 0.1s infinite; }
+body.effect-dark { filter: brightness(0.2) contrast(1.5); }
 
-@keyframes rbw {
-    0% { border-color: red; } 50% { border-color: blue; } 100% { border-color: red; }
-}
-
-@keyframes shk {
-    0% { transform: translate(2px, 2px); } 50% { transform: translate(-2px, -2px); }
-}
+@keyframes rainbow { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+@keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(0px, 0px); } }
