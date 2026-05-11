@@ -2,82 +2,63 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ELITETRIO ARCADE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ABOVEtheFruitedPlain- | KERNEL ACCESS</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
     <header>
-        <h1 class="logo-glow">ELITETRIO</h1>
-        <p class="tagline">SINGULARITY ENGINE V33</p>
-        <div class="status-row">
-            <div id="statusPill">
-                <span id="statusDot" class="dot"></span>
-                <span id="statusText">Waking system...</span>
-            </div>
-            <button id="retryBtn" onclick="window.retryConnection()">RETRY</button>
-        </div>
+        <h1>ABOVEtheFruitedPlain-</h1>
+        <div id="statusText" style="font-size: 0.7rem; color: #444; margin-top: 5px;">INITIALIZING LINK...</div>
     </header>
 
-    <section id="playerSection">
-        <div class="player-header">
-            <h2 id="playerTitle">NOW PLAYING</h2>
-            <button class="close-btn" onclick="window.closePlayer()">CLOSE</button>
-        </div>
-        <div class="iframe-container">
-            <iframe id="gameFrame" src="" allowfullscreen></iframe>
+    <section id="playerSection" style="display: none; padding: 20px; border-bottom: 1px solid #222;">
+        <div style="max-width: 1000px; margin: auto;">
+            <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border: 1px solid #00f0ff;">
+                <iframe id="gameFrame" src="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <button onclick="document.getElementById('playerSection').style.display='none'" style="margin-top: 10px; width: 100%; border-color: #ff0055; color: #ff0055 !important;">TERMINATE SESSION</button>
         </div>
     </section>
 
-    <div id="filterBar"></div>
-
-    <div id="recentBar">
-        <span class="recent-label">RECENT:</span>
-        <div id="recentChips"></div>
-    </div>
-
-    <div id="searchWrap">
-        <div class="search-inner">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="gameSearch" placeholder="Search logic streams...">
-        </div>
-    </div>
-
     <main id="gameGrid">
-        <p class="loading-msg">INITIALIZING DATABASE...</p>
+        <div style="text-align: center; grid-column: 1/-1; padding: 50px;">
+            <p style="font-family: 'Orbitron'; letter-spacing: 2px;">SCANNING FOR AVAILABLE NODES...</p>
+        </div>
     </main>
 
     <section id="chatSection">
-        <div class="chat-panel">
-            <div class="chat-header">
-                <span class="chat-title">LOBBY_CHAT</span>
-                <div class="chat-header-right">
-                    <div id="onlineCount">0 online</div>
-                    <div class="chat-live-badge">● LIVE</div>
-                </div>
+        <h2 style="font-family: 'Orbitron'; font-size: 1rem; border-left: 3px solid #00f0ff; padding-left: 10px; margin-bottom: 15px;">LOBBY_CHAT</h2>
+        
+        <div id="chatMessages">
             </div>
-            <div class="chat-feed-wrap">
-                <div id="chatMessages"></div>
-            </div>
-            <div class="chat-input-area">
-                <div class="chat-username-row">
-                    <span class="chat-username-label">USER:</span>
-                    <input type="text" id="chatUsername" placeholder="Guest" maxlength="15">
-                </div>
-                <div class="chat-send-row">
-                    <input type="text" id="chatInput" placeholder="Send message..." onkeydown="window.chatKeyHandler(event)">
-                    <button id="chatSendBtn" onclick="window.sendMessage()">SEND</button>
-                </div>
-            </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="chatUsername" placeholder="ID" style="width: 80px; flex-grow: 0;">
+            <input type="text" id="chatInput" placeholder="ENTER MESSAGE..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <button id="chatSendBtn" onclick="sendMessage()">SEND</button>
         </div>
     </section>
 
-    <footer>&copy; 2026 ELITETRIO ARCADE // KERNEL_V33</footer>
+    <div id="modModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#111; border:2px solid #ff0055; padding:20px; z-index:10000; box-shadow: 0 0 50px #000;">
+        <h3 id="modTarget" style="font-family:'Orbitron'; color:#ff0055; margin-top:0;">MODERATION</h3>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            <button id="btnDelete" style="border-color:#ff0055;">DELETE MESSAGE</button>
+            <button id="btnMute" style="border-color:#ffaa00;">MUTE USER</button>
+            <button onclick="document.getElementById('modModal').style.display='none'">CANCEL</button>
+        </div>
+    </div>
 
-    <script src="Backup.js"></script>
+    <footer style="padding: 20px; text-align: center; opacity: 0.3; font-size: 0.6rem; letter-spacing: 2px;">
+        &copy; 2026 ELITETRIO OPERATIONS | KERNEL V.3.0
+    </footer>
+
     <script src="script.js"></script>
 </body>
 </html>
