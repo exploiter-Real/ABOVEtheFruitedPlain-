@@ -1,6 +1,6 @@
 // --- CONFIGURATION ---
 const SB_URL = "https://dleydypvpffeifmdpzqc.supabase.co";
-const SB_KEY = "Sb_publishable_8Y8H1WhpJhp3A4kyF6P6hQ_JvQk5IVU";
+const SB_KEY = "sb_publishable_8Y8H1WhpJhp3A4kyF6P6hQ_JvQk5IVU";
 
 let sbClient = null;
 
