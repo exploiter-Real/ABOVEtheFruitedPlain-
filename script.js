@@ -1,26 +1,83 @@
+// --- CONFIGURATION ---
 const SB_URL = "https://dleydypvpffeifmdpzqc.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsZXlkeXB2cGZmZWlmbWRwenFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTc5ODUsImV4cCI6MjA5MjA5Mzk4NX0.gnI03TZkpBT7r5OIwlTKsd7bwovQYAfwRfykhnq5fjY";
 
 let sbClient = null;
 
+// --- ROADMAP DATA ---
+const Roadmap = {
+    dates: {
+        bridge: "2026-05-18",
+        faceAI: "2026-06-01",
+        ghost:  "2026-07-01",
+        phoenix: "2026-07-20",
+        birthday: { m: 7, d: 22 }, // August 22nd
+        gamble: "2027-08-24"
+    }
+};
+
+// --- CORE INITIALIZATION ---
 async function init() {
     if (!window.supabase) return;
     sbClient = window.supabase.createClient(SB_URL, SB_KEY);
     
-    document.getElementById("statusText").innerText = "LINK ESTABLISHED";
+    // Automation Check
+    runRoadmapCheck();
     
     loadGames();
     initChat();
     listenForEffects();
 }
 
+// --- ROADMAP & AUTOMATION LOGIC ---
+function runRoadmapCheck() {
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+
+    // May 18: Bridge Activation
+    if (today >= Roadmap.dates.bridge) {
+        document.getElementById("statusText").innerText = "LINK ESTABLISHED";
+    } else {
+        document.getElementById("statusText").innerText = "LINKING TO DATABASE...";
+    }
+
+    // July 1: Ghost Protocol (Teaser AI)
+    if (today >= Roadmap.dates.ghost && today < Roadmap.dates.phoenix) {
+        startGhostProtocol();
+    }
+
+    // July 20: Project Phoenix Rework
+    if (today >= Roadmap.dates.phoenix) {
+        document.body.classList.add('phoenix-mode');
+    }
+
+    // August 22: Birthday Event
+    if (now.getMonth() === Roadmap.dates.birthday.m && now.getDate() === Roadmap.dates.birthday.d) {
+        const header = document.querySelector('header h1');
+        if (header) header.innerText = "🎂 ABOVEtheFruitedPlain- 🎂";
+    }
+}
+
+function startGhostProtocol() {
+    setInterval(() => {
+        if (Math.random() < 0.1) { // 10% chance every 45s
+            const ghostData = {
+                id: 'ghost-' + Date.now(),
+                username: "???",
+                message: "The Bridge is thinning...",
+                isGhost: true
+            };
+            appendMessage(ghostData);
+            sessionStorage.setItem('ghostActive', 'true');
+        }
+    }, 45000);
+}
+
+// --- CHAT SYSTEM ---
 async function initChat() {
     const userID = document.getElementById("chatUsername").value;
-    
-    // Initial load
     let query = sbClient.from("chat_messages").select("*");
     
-    // Simple logic: non-admins only see general channel
     if (userID !== "EliteTrio") {
         query = query.eq("channel", "general");
     }
@@ -28,10 +85,8 @@ async function initChat() {
     const { data } = await query.order("created_at", { ascending: true }).limit(50);
     if (data) data.forEach(msg => appendMessage(msg));
 
-    // Realtime Listener
     sbClient.channel('chat-room').on('postgres_changes', { event: '*', schema: 'public', table: 'chat_messages' }, payload => {
         if (payload.eventType === 'INSERT') {
-            // Only append if it's general OR if we are admin
             if (payload.new.channel === "general" || document.getElementById("chatUsername").value === "EliteTrio") {
                 appendMessage(payload.new);
             }
@@ -48,13 +103,12 @@ function appendMessage(msg) {
     if (!feed) return;
 
     const row = document.createElement("div");
-    row.className = "chat-row";
+    row.className = msg.isGhost ? "chat-row ghost-msg" : "chat-row";
     row.id = `msg-${msg.id || msg.msg_id}`;
 
-    // Admin Long-Press Deletion
     let pressTimer;
     row.addEventListener('touchstart', () => {
-        if(document.getElementById("chatUsername").value === "EliteTrio") {
+        if(document.getElementById("chatUsername").value === "EliteTrio" && !msg.isGhost) {
             pressTimer = setTimeout(() => deleteMessage(msg), 800);
         }
     });
@@ -72,10 +126,8 @@ function appendMessage(msg) {
 async function deleteMessage(msg) {
     const confirmDelete = confirm("Purge this message from the stream?");
     if (confirmDelete) {
-        // Targets 'id' or 'msg_id' depending on which one you have in DB
         const targetId = msg.id || msg.msg_id;
         const targetColumn = msg.id ? "id" : "msg_id";
-        
         await sbClient.from("chat_messages").delete().eq(targetColumn, targetId);
     }
 }
@@ -87,6 +139,13 @@ window.sendMessage = async () => {
     const msg = msgBox.value;
 
     if (!msg.trim()) return;
+
+    // Logic to clear ghost messages if user types '?'
+    if (msg.includes('?') && sessionStorage.getItem('ghostActive')) {
+        const ghosts = document.querySelectorAll('.ghost-msg');
+        ghosts.forEach(g => g.remove());
+        sessionStorage.removeItem('ghostActive');
+    }
 
     let chan = "general";
     if (user === "EliteTrio" && msg.startsWith("/a ")) {
@@ -102,6 +161,7 @@ window.sendMessage = async () => {
     msgBox.value = "";
 };
 
+// --- GAME SYSTEM ---
 async function loadGames() {
     const { data } = await sbClient.from("arcade_games").select("*");
     const grid = document.getElementById("gameGrid");
@@ -120,11 +180,24 @@ async function loadGames() {
 }
 
 function playGame(url) {
+    const today = new Date().toISOString().split('T')[0];
+
+    // August 24, 2027: Rickroll Gamble (3% chance)
+    if (today >= Roadmap.dates.gamble && Math.random() < 0.03) {
+        const stealth = document.getElementById("stealthPlayer");
+        stealth.src = "rickroll.mp4";
+        stealth.style.display = "block";
+        stealth.play();
+        if (stealth.requestFullscreen) stealth.requestFullscreen();
+        return;
+    }
+
     const player = document.getElementById("playerSection");
     document.getElementById("gameFrame").src = url;
     player.style.display = "block";
 }
 
+// --- LIVE EFFECTS ---
 function listenForEffects() {
     sbClient.channel('fx').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'live_effects' }, p => {
         document.body.className = "effect-" + p.new.command;
@@ -132,3 +205,4 @@ function listenForEffects() {
 }
 
 window.onload = init;
+        
