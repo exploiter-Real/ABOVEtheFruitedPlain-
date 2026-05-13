@@ -1,148 +1,87 @@
-:root {
-    --neon-blue: #00f0ff;
-    --neon-pink: #ff0055;
-    --bg-black: #000000;
-    --panel-gray: #0a0a0a;
-}
-
+/* --- ORIGINAL STYLES --- */
 body {
-    margin: 0;
-    background-color: var(--bg-black);
-    color: #ffffff;
+    background-color: #000814;
+    color: #00f2ff;
     font-family: 'Rajdhani', sans-serif;
-    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    transition: background 2s ease;
 }
 
 header {
     padding: 20px;
     text-align: center;
-    border-bottom: 1px solid #222;
-    background: #050505;
+    border-bottom: 1px solid #00f2ff;
+    background: rgba(0, 20, 40, 0.8);
 }
 
-header h1 {
+h1 {
     font-family: 'Orbitron', sans-serif;
-    color: var(--neon-blue);
-    margin: 0;
     letter-spacing: 5px;
-    font-size: 1.4rem;
+    margin: 0;
 }
 
 #statusText {
-    font-size: 0.6rem;
-    color: #444;
+    font-size: 0.8em;
     margin-top: 5px;
-    letter-spacing: 2px;
+    color: #00f2ff;
+    text-transform: uppercase;
 }
 
-/* Arcade Grid */
 #gameGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 15px;
-    padding: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 30px;
 }
 
-.card {
-    background: var(--panel-gray);
-    border: 1px solid #1a1a1a;
-    padding: 20px;
-    text-align: center;
-    transition: 0.3s;
-}
+/* --- ADDED ROADMAP STYLES --- */
 
-.card:hover { border-color: var(--neon-blue); }
-
-.card h3 {
+/* GHOST CHAT STYLE (July 1st) */
+.ghost-msg {
+    color: #ff4d4d !important;
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.9rem;
-    margin-bottom: 15px;
+    text-shadow: 0 0 8px #ff0000;
+    margin: 5px 0;
+    padding: 5px;
+    border-left: 2px solid #ff4d4d;
+    animation: ghostGlitch 0.2s infinite;
 }
 
-/* Chat Layout */
+@keyframes ghostGlitch {
+    0% { opacity: 1; transform: translateX(0); }
+    50% { opacity: 0.8; transform: translateX(2px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+
+/* PROJECT PHOENIX REWORK (July 20th) */
+body.phoenix-mode {
+    background: radial-gradient(circle, #001d3d 0%, #000814 100%) !important;
+}
+
+body.phoenix-mode .game-card, 
+body.phoenix-mode .player-container,
+body.phoenix-mode #chatSection {
+    border-radius: 20px; /* Your curved preference */
+    border: 2px solid #bd00ff; /* Purple accent for Phoenix */
+    box-shadow: 0 0 20px #bd00ff;
+}
+
+/* CHAT SECTION */
 #chatSection {
+    background: rgba(0, 10, 20, 0.9);
+    border-top: 1px solid #00f2ff;
     padding: 20px;
-    max-width: 800px;
-    margin: 0 auto 50px auto;
-}
-
-.chat-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 #chatMessages {
-    height: 300px;
-    background: #020202;
-    border: 1px solid #222;
-    padding: 15px;
+    height: 150px;
     overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-}
-
-.chat-row {
-    margin-bottom: 8px;
-    word-wrap: break-word;
-    border-left: 2px solid transparent;
-    padding-left: 10px;
-}
-
-.chat-username {
-    font-family: 'Orbitron', sans-serif;
-    color: var(--neon-blue);
-    font-weight: bold;
-    font-size: 0.8rem;
-    margin-right: 10px;
-}
-
-.chat-text {
-    color: #ffffff !important;
-    font-size: 1rem;
-}
-
-/* Inputs & Buttons */
-.chat-input-area {
-    display: flex;
-    gap: 5px;
-    margin-top: 10px;
-}
-
-input[type="text"] {
-    background: #111;
-    border: 1px solid #333;
-    color: #fff;
+    margin-bottom: 10px;
+    border: 1px solid rgba(0, 242, 255, 0.2);
     padding: 10px;
-    font-family: 'Rajdhani', sans-serif;
 }
-
-#chatUsername { width: 80px; }
-#chatInput { flex-grow: 1; }
-
-button {
-    background: #000;
-    color: #fff;
-    border: 1px solid #444;
-    padding: 10px 15px;
-    font-family: 'Orbitron', sans-serif;
-    cursor: pointer;
-    text-transform: uppercase;
-    font-size: 0.7rem;
-}
-
-button:hover {
-    border-color: var(--neon-blue);
-    color: var(--neon-blue);
-}
-
-.close-btn { width: 100%; border-color: var(--neon-pink); color: var(--neon-pink) !important; margin-top: 10px; }
-
-/* Effects */
-body.effect-rainbow { border-top: 4px solid var(--neon-blue); animation: rainbow 2s infinite; }
-body.effect-shake { animation: shake 0.1s infinite; }
-body.effect-dark { filter: brightness(0.2) contrast(1.5); }
-
-@keyframes rainbow { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
-@keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(0px, 0px); } }
