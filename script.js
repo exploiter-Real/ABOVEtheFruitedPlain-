@@ -1,18 +1,22 @@
 // --- CONFIGURATION ---
 const SB_URL = "https://dleydypvpffeifmdpzqc.supabase.co";
-const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsZXlkeXB2cGZmZWlmbWRwenFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTc5ODUsImV4cCI6MjA5MjA5Mzk4NX0.gnI03TZkpBT7r5OIwlTKsd7bwovQYAfwRfykhnq5fjY";
+const SB_KEY = "Sb_publishable_8Y8H1WhpJhp3A4kyF6P6hQ_JvQk5IVU";
 
 let sbClient = null;
 
-// --- ROADMAP DATA ---
+// --- FULL ROADMAP DATA ---
 const Roadmap = {
     dates: {
-        bridge: "2026-05-18",
-        faceAI: "2026-06-01",
-        ghost:  "2026-07-01",
-        phoenix: "2026-07-20",
-        birthday: { m: 7, d: 22 }, // August 22nd
-        gamble: "2027-08-24"
+        bridge:   "2026-05-18",
+        faceAI:   "2026-06-01",
+        ghost:    "2026-07-01",
+        julyEvents: ["2026-07-04", "2026-07-05", "2026-07-09", "2026-07-15"],
+        phoenix:  "2026-07-20",
+        birthday: { m: 7, d: 22 }, // August 22nd (Month 7 is August in 0-index JS)
+        rapid:    "2027-08-23",
+        gamble:   "2027-08-24",
+        engine:   "2027-08-25",
+        kingdom:  "2027-08-26"
     }
 };
 
@@ -21,9 +25,7 @@ async function init() {
     if (!window.supabase) return;
     sbClient = window.supabase.createClient(SB_URL, SB_KEY);
     
-    // Automation Check
     runRoadmapCheck();
-    
     loadGames();
     initChat();
     listenForEffects();
@@ -34,33 +36,50 @@ function runRoadmapCheck() {
     const now = new Date();
     const today = now.toISOString().split('T')[0];
 
-    // May 18: Bridge Activation
+    // 1. May 18: Bridge
     if (today >= Roadmap.dates.bridge) {
         document.getElementById("statusText").innerText = "LINK ESTABLISHED";
-    } else {
-        document.getElementById("statusText").innerText = "LINKING TO DATABASE...";
     }
 
-    // July 1: Ghost Protocol (Teaser AI)
+    // 2. June 1: Face Control & Groq
+    if (today >= Roadmap.dates.faceAI) {
+        console.log("Kernel: Groq AI & Face Navigation Modules Loaded.");
+    }
+
+    // 3. July 1: Ghost Protocol
     if (today >= Roadmap.dates.ghost && today < Roadmap.dates.phoenix) {
         startGhostProtocol();
     }
 
-    // July 20: Project Phoenix Rework
+    // 4. July Special Events (4, 5, 9, 15)
+    if (Roadmap.dates.julyEvents.includes(today)) {
+        console.log("Kernel: Special Event Active. New Nodes Available.");
+    }
+
+    // 5. July 20: Project Phoenix
     if (today >= Roadmap.dates.phoenix) {
         document.body.classList.add('phoenix-mode');
     }
 
-    // August 22: Birthday Event
-    if (now.getMonth() === Roadmap.dates.birthday.m && now.getDate() === Roadmap.dates.birthday.d) {
-        const header = document.querySelector('header h1');
-        if (header) header.innerText = "🎂 ABOVEtheFruitedPlain- 🎂";
+    // 6. August 22: Birthday (2027+)
+    if (now.getFullYear() >= 2027 && now.getMonth() === Roadmap.dates.birthday.m && now.getDate() === Roadmap.dates.birthday.d) {
+        document.querySelector('header h1').innerText = "🎂 ABOVEtheFruitedPlain- 🎂";
+    }
+
+    // 7. August 25: The Eternal Engine
+    if (today >= Roadmap.dates.engine) {
+        console.log("Kernel: Eternal Engine engaged. Automation loop active.");
+    }
+
+    // 8. August 26: Key to the Kingdom (Final Update)
+    if (today >= Roadmap.dates.kingdom) {
+        document.getElementById("statusText").innerText = "SYSTEM COMPLETE // KEY TO THE KINGDOM";
     }
 }
 
 function startGhostProtocol() {
     setInterval(() => {
-        if (Math.random() < 0.1) { // 10% chance every 45s
+        if (Math.random() < 0.1) {
             const ghostData = {
                 id: 'ghost-' + Date.now(),
                 username: "???",
@@ -87,7 +106,8 @@ async function initChat() {
 
     sbClient.channel('chat-room').on('postgres_changes', { event: '*', schema: 'public', table: 'chat_messages' }, payload => {
         if (payload.eventType === 'INSERT') {
-            if (payload.new.channel === "general" || document.getElementById("chatUsername").value === "EliteTrio") {
+            const currentID = document.getElementById("chatUsername").value;
+            if (payload.new.channel === "general" || currentID === "EliteTrio") {
                 appendMessage(payload.new);
             }
         }
@@ -140,10 +160,8 @@ window.sendMessage = async () => {
 
     if (!msg.trim()) return;
 
-    // Logic to clear ghost messages if user types '?'
     if (msg.includes('?') && sessionStorage.getItem('ghostActive')) {
-        const ghosts = document.querySelectorAll('.ghost-msg');
-        ghosts.forEach(g => g.remove());
+        document.querySelectorAll('.ghost-msg').forEach(g => g.remove());
         sessionStorage.removeItem('ghostActive');
     }
 
@@ -182,7 +200,7 @@ async function loadGames() {
 function playGame(url) {
     const today = new Date().toISOString().split('T')[0];
 
-    // August 24, 2027: Rickroll Gamble (3% chance)
+    // August 24, 2027 Gamble
     if (today >= Roadmap.dates.gamble && Math.random() < 0.03) {
         const stealth = document.getElementById("stealthPlayer");
         stealth.src = "rickroll.mp4";
@@ -205,4 +223,3 @@ function listenForEffects() {
 }
 
 window.onload = init;
-        
