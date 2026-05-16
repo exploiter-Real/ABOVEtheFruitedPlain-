@@ -1,4 +1,4 @@
-Name: Eternal Engine Daily Pulse
+name: Eternal Engine Daily Pulse
 on:
   schedule:
     - cron: '0 0 * * *' 
