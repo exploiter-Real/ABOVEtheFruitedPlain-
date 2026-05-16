@@ -1,0 +1,32 @@
+name: Eternal Engine Daily Pulse
+on:
+  schedule:
+    - cron: '0 0 * * *' # This runs every night at midnight
+  workflow_dispatch:      # This lets you run it manually for testing
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write     # Important: Allows the robot to save changes
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install AI Library
+        run: pip install google-generativeai
+
+      - name: Run Eternal Engine
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python eternal_engine.py
+
+      - name: Commit and Push
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "✨ Eternal Engine: Daily Event Update"
+          
